@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran & Pembayaran Tiket Konser</title>
+    <!-- Tailwind CSS untuk Styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- JsBarcode untuk Generate Barcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- Html2Pdf untuk Download PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        .bg-gradasi-cokelat {
+            background: linear-gradient(135deg, #1A0F0D 0%, #3E2723 50%, #5D4037 100%);
+        }
+        .bg-cokelat-tua { background-color: #3E2723; }
+        .pdf-box { font-family: Arial, sans-serif; background-color: #FFF8E7; color: #3E2723; }
+    </style>
+</head>
+<body class="bg-gradasi-cokelat min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-amber-900/20 my-6">
+        <!-- Header -->
+        <div class="bg-cokelat-tua p-6 text-center text-white relative">
+            <span class="text-xs font-bold tracking-widest text-amber-400 uppercase bg-amber-950/50 px-3 py-1 rounded-full">Presale 1</span>
+            <h1 class="text-2xl font-black tracking-wide text-amber-100 mt-2">KONSER MUSIK 2026</h1>
+            <p id="header-desc" class="text-xs text-amber-200/80 mt-1">Langkah 1: Pilih Paket & Isi Data Diri</p>
+        </div>
+
+        <!-- LANGKAH 1: Form Pendaftaran -->
+        <div id="form-section" class="p-6 space-y-4">
+            <form id="ticket-form" onsubmit="goToPayment(event)" class="space-y-4">
+                <!-- Pilihan Paket -->
+                <div>
+                    <label class="block text-sm font-bold text-stone-800 mb-2">Pilih Variasi Tiket</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <label class="flex items-center justify-between p-3 border-2 border-amber-800/20 rounded-xl bg-amber-50/50 cursor-pointer hover:border-amber-700 transition">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paket" value="1 Orang" data-harga="50000" checked class="accent-amber-800 w-4 h-4">
+                                <span class="text-sm font-medium text-stone-800">👤 Paket 1 Orang</span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-950">Rp 50.000</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border-2 border-amber-800/20 rounded-xl bg-amber-50/50 cursor-pointer hover:border-amber-700 transition">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paket" value="Couple (2 Orang)" data-harga="95000" class="accent-amber-800 w-4 h-4">
+                                <span class="text-sm font-medium text-stone-800">👥 Paket Couple</span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-950">Rp 95.000</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border-2 border-amber-800/20 rounded-xl bg-amber-50/50 cursor-pointer hover:border-amber-700 transition">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paket" value="Paket Ber-3" data-harga="135000" class="accent-amber-800 w-4 h-4">
+                                <span class="text-sm font-medium text-stone-800">🧑‍🤝‍🧑 Paket Ber-3</span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-950">Rp 135.000</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border-2 border-amber-800/20 rounded-xl bg-amber-50/50 cursor-pointer hover:border-amber-700 transition">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="paket" value="Paket Ber-4" data-harga="160000" class="accent-amber-800 w-4 h-4">
+                                <span class="text-sm font-medium text-stone-800">🥳 Paket Ber-4</span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-950">Rp 160.000</span>
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="border-stone-200">
+
+                <!-- Input Data Diri -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-stone-700 mb-1">Nama Lengkap</label>
+                        <input type="text" id="nama" required class="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none bg-white shadow-sm" placeholder="Nama perwakilan sesuai KTP">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-stone-700 mb-1">Nomor WhatsApp</label>
+                        <input type="tel" id="hp" required class="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none bg-white shadow-sm" placeholder="Contoh: 08123456789">
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-cokelat-tua text-amber-100 font-bold py-3 px-4 rounded-lg hover:bg-stone-800 transition duration-200 cursor-pointer shadow-md">
+                    Lanjut ke Pembayaran
+                </button>
+            </form>
+        </div>
+
+        <!-- LANGKAH 2: Form Pembayaran -->
+        <div id="payment-section" class="hidden p-6 space-y-5">
+            <div class="bg-amber-100/60 p-4 rounded-xl border border-amber-200 text-stone-800">
+                <p class="text-xs uppercase tracking-wider font-bold text-amber-800 mb-1">Total Tagihan Anda</p>
+                <div class="flex justify-between items-center mb-4">
+                    <span id="summary-paket" class="text-sm font-semibold text-stone-700"></span>
+                    <span id="summary-harga" class="font-black text-2xl text-amber-950"></span>
+                </div>
+                
+                <p class="text-xs text-stone-600 mb-2 font-bold uppercase tracking-wide">Pilih Metode Pembayaran Anda:</p>
+                
+                <!-- Tombol Aksi Pembayaran Otomatis -->
+                <div class="space-y-2">
+                    <!-- Link DANA dengan Nominal Otomatis -->
+                    <!-- Ganti '08123456789' dengan nomor Akun DANA Anda -->
+                    <a id="dana-btn" href="#" target="_blank" class="flex items-center justify-between p-3 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-sm shadow transition">
+                        <span>📱 Bayar via Aplikasi DANA</span>
+                        <span class="text-xs bg-sky-700 px-2 py-0.5 rounded">Otomatis Nominal</span>
+                    </a>
+
+                    <!-- Tombol Panduan Mandiri dengan Fitur Copy Otomatis -->
+                    <div class="bg-white p-3 rounded-xl border border-stone-200 space-y-2 text-xs shadow-inner">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-stone-800">☕ Bank Mandiri</p>
+                                <p class="text-stone-600 font-medium">1234-5678-9012 (Panitia Konser)</p>
+                            </div>
+                            <button onclick="salinTeks('123456789012', 'Nomor Rekening')" class="bg-amber-100 text-amber-900 font-bold px-2.5 py-1 rounded hover:bg-amber-200 cursor-pointer text-[11px]">Salin Rek</button>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 border-t border-stone-100">
+                            <p class="text-stone-500">Salin jumlah nominal agar pas:</p>
+                            <button id="copy-harga-btn" class="bg-amber-800 text-white font-bold px-2.5 py-1 rounded hover:bg-amber-900 cursor-pointer text-[11px]">Salin Nominal</button>
+                        </div>
+                        <a href="https://livin.bankmandiri.co.id/" target="_blank" class="block text-center w-full py-2 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg mt-1 transition">
+                            🏛️ Buka Aplikasi Livin' Mandiri
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Bukti -->
+            <form id="payment-form" onsubmit="processPayment(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-stone-700 mb-1">Upload Bukti Transfer</label>
+                    <input type="file" id="bukti" required accept="image/*" class="w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer">
+                </div>
+                <button type="submit" class="w-full bg-amber-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-amber-800 transition duration-200 cursor-pointer shadow-md">
+                    Konfirmasi Pembayaran
+                </button>
+            </form>
+        </div>
+
+        <!-- LOADING SCREEN -->
+        <div id="loading-section" class="hidden p-12 text-center space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-amber-800 mx-auto"></div>
+            <p class="text-stone-600 font-medium text-sm">Sedang memverifikasi pembayaran Anda...</p>
+        </div>
+
+        <!-- LANGKAH 3: Tiket Selesai (Render PDF Area) -->
+        <div id="ticket-section" class="hidden p-6 text-center space-y-5">
+            <div id="ticket-pdf-area" class="pdf-box p-6 rounded-xl border border-dashed border-amber-800/50 text-center bg-[#FFF8E7] shadow-sm">
+                <div style="border-bottom: 2px solid #3E2723; padding-bottom: 12px; margin-bottom: 12px;">
+                    <h2 style="font-size: 18px; font-weight: 900; letter-spacing: 1px; color: #3E2723; margin: 0;">TIKET ELEKTRONIK</h2>
+                    <p style="font-size: 12px; color: #795548; margin: 2px 0 0 0;">KONSER MUSIK 2026 - PRESALE 1</p>
+                </div>
+                <div style="text-align: left; font-size: 13px; margin-bottom: 15px;">
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 10px; color: #8D6E63; display: block; text-transform: uppercase;">Nama Pemilik</span>
+                        <strong id="res-nama" style="font-size: 15px; color: #3E2723;">-</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: #8D6E63; display: block; text-transform: uppercase;">Kategori Paket</span>
+                        <strong id="res-paket" style="color: #3E2723;">-</strong>
+                    </div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 8px; display: inline-block; margin-top: 5px; border: 1px solid #E0D4BE;">
+                    <svg id="barcode"></svg>
+                </div>
+                <p style="font-size: 9px; color: #8D6E63; margin-top: 15px; border-top: 1px dashed #D7CCC8; padding-top: 8px;">
+                    *Tunjukkan PDF ini kepada petugas loket untuk di-scan saat memasuki area konser.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button onclick="downloadPDF()" class="w-full bg-cokelat-tua text-amber-100 font-bold py-2.5 px-4 rounded-lg hover:bg-stone-800 transition duration-200 cursor-pointer shadow flex items-center justify-center gap-2">
+                    📥 Unduh Tiket (PDF)
+                </button>
+                <button onclick="resetForm()" class="w-full text-stone-500 hover:text-stone-800 text-xs font-medium transition py-2">
+                    Kembali ke Halaman Utama
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTicketNum = "";
+        let namaPengguna = "";
+        let paketTerpilih = "";
+        let angkaHargaRaw = 0;
+
+        // Akun DANA Anda (Ganti dengan nomor HP DANA Anda yang terdaftar bisnis/personal)
+        const NOMOR_HP_DANA = "08123456789"; 
+
+        function goToPayment(event) {
+            event.preventDefault();
+            namaPengguna = document.getElementById('nama').value;
+            
+            const radioTerpilih = document.querySelector('input[name="paket"]:checked');
+            paketTerpilih = radioTerpilih.value;
+            angkaHargaRaw = parseInt(radioTerpilih.getAttribute('data-harga'));
+
+            document.getElementById('summary-paket').innerText = `Paket: ${paketTerpilih}`;
+            document.getElementById('summary-harga').innerText = `Rp ${angkaHargaRaw.toLocaleString('id-ID')}`;
+
+            // ATUR DEEP LINK DANA OTOMATIS BERDASARKAN NOMINAL PAKET
+            const danaLink = `https://link.dana.id/qr?acctNo=${NOMOR_HP_DANA}&amt=${angkaHargaRaw}`;
+            document.getElementById('dana-btn').href = danaLink;
+
+            // Atur tombol copy nominal Mandiri
+            document.getElementById('copy-harga-btn').setAttribute("onclick", `salinTeks('${angkaHargaRaw}', 'Nominal Transfer')`);
+
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('payment-section').classList.remove('hidden');
+            document.getElementById('header-desc').innerText = "Langkah 2: Selesaikan Pembayaran";
+        }
+
+        // Fungsi bantu copy text ke HP/Laptop
+        function salinTeks(teks, label) {
+            navigator.clipboard.writeText(teks).then(() => {
+                alert(`${label} berhasil disalin: ${teks}`);
+            }).catch(() => {
+                alert("Gagal menyalin otomatis, silakan salin manual.");
+            });
+        }
+
+        function processPayment(event) {
+            event.preventDefault();
+            document.getElementById('payment-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.remove('hidden');
+
+            setTimeout(() => {
+                const randomNum = Math.floor(10000 + Math.random() * 90000);
+                currentTicketNum = `TKT-2026-${randomNum}`;
+
+                document.getElementById('res-nama').innerText = namaPengguna;
+                document.getElementById('res-paket').innerText = `${paketTerpilih} (Presale 1)`;
+
+                JsBarcode("#barcode", currentTicketNum, {
+                    format: "CODE128",
+                    lineColor: "#3E2723", 
+                    width: 2,
+                    height: 65,
+                    displayValue: true
+                });
+
+                document.getElementById('loading-section').classList.add('hidden');
+                document.getElementById('ticket-section').classList.remove('hidden');
+                document.getElementById('header-desc').innerText = "Langkah 3: Tiket PDF Anda Siap!";
+            }, 2500);
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('ticket-pdf-area');
+            const opsi = {
+                margin:       10,
+                filename:     `Tiket_Konser_${namaPengguna.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
+            };
+            html2pdf().set(opsi).from(element).save();
+        }
+
+        function resetForm() {
+            document.getElementById('ticket-form').reset();
+            document.getElementById('payment-form').reset();
+            document.getElementById('ticket-section').classList.add('hidden');
+            document.getElementById('form-section').classList.remove('hidden');
+            document.getElementById('header-desc').innerText = "Langkah 1: Pilih Paket & Isi Data Diri";
+        }
+    </script>
+</body>
+</html>
